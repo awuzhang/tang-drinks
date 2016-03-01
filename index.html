@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>唐硕</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0">
+  <!-- <link rel="stylesheet" href="css/style.css"> -->
+</head>
+
+<body ontouchstart="">
+<header class="f18">您想喝什么？<br>Would you like something to drink?</header>
+<div class="footer">
+  <div id="count"></div>
+  <div><a class="ok ? success : danger" id="submit" href="#">OK</a></div>
+  <div class="order">
+    <div class="clear">清空 Empty</div>
+    <div class="list">
+      <!-- <ul id="order">
+        <li v-for="order in orders">
+          <div>{{ drink.name }}</div>
+          <div>{{ drink.type }}</div>
+          <div class="todo">
+            <a @click="less" href="#"> - </a>
+            <input type="text" @model="order.amount">
+            <a @click="plus" href="#"> + </a>
+          </div>
+        </li>
+      </ul> -->
+    </div>
+  </div>
+</div>
+<div id="main">
+  <div class="side">
+    <ul id="side">
+      <li v-for="drink in drinks">
+        <div>{{ drink.name }}</div>
+        <div>{{ drink.type }}</div>
+        <div>{{ drink.countAmount }}</div>
+      </li>
+    </ul>
+  </div>
+  <div class="drinksMenu">
+    <div class="list">
+      <ul id="drinksMenu">
+        <li v-for="drink in drinks">
+          <div>{{ drink.name }} {{ drink.type }} {{ drink.note }}</div>
+          <div class="items">
+            <ul class="drinksItems">
+              <li v-for="item in drink.items">
+                <div>{{item.name_zh}}</div>
+                <div>{{item.name}}</div>
+                <div v-show="item.amount > 0">
+                  <a @click="less(item)" href="#"> - </a>
+                  <input type="text" v-model="item.amount">
+                </div>
+                <a @click="plus(item)" href="#"> + </a>
+              </li>
+            </ul>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+</body>
+
+<script src="js/vue.js"></script>
+<script src="js/api.js"> </script>
+</html>
