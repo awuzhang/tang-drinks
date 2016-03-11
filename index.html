@@ -4,66 +4,118 @@
   <meta charset="utf-8">
   <title>唐硕</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0">
-  <!-- <link rel="stylesheet" href="css/style.css"> -->
+  <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body ontouchstart="">
-<header class="f18">您想喝什么？<br>Would you like something to drink?</header>
-<div class="footer">
-  <div id="count"></div>
-  <div><a class="ok ? success : danger" id="submit" href="#">OK</a></div>
-  <div class="order">
-    <div class="clear">清空 Empty</div>
-    <div class="list">
-      <!-- <ul id="order">
-        <li v-for="order in orders">
-          <div>{{ drink.name }}</div>
-          <div>{{ drink.type }}</div>
-          <div class="todo">
-            <a @click="less" href="#"> - </a>
-            <input type="text" @model="order.amount">
-            <a @click="plus" href="#"> + </a>
-          </div>
-        </li>
-      </ul> -->
+<header class="tc header fff">您想喝什么？<br>Would you like something to drink?</header>
+<div id='app'>
+  <drinks-main inline-template>
+    <drinks-side :drinks="drinks"></drinks-side>
+    <drinks-items :drinks="drinks" :orders="orders"></drinks-items>
+    <shiping-car :orders="orders"></shiping-car>
+    <choose-color></choose-color>
+    <message></message>
+  </drinks-main>
+</div>
+
+<template id='message-template'>
+  <div class="messagePage" v-show="isShowPage">
+    <div class="tc f17 mt100">
+      <!-- <div class="message" v-html="text"></div> -->
+      <div class="postOk mt20" v-show="postOk">提交成功 3秒后调到TANG首页 <br> <div class="f10">You will be taken to TANG’s home page after 3 seconds</div></div>
+      <div class="postErr mt20" v-show="postErr">抱歉，点单失败。请<a class="back" href="index.html">返回</a>重新提交。<div class="f10"> Your order fail placed. Please return and try again.</div></div>
     </div>
   </div>
-</div>
-<div id="main">
-  <div class="side">
-    <ul id="side">
-      <li v-for="drink in drinks">
-        <div>{{ drink.name }}</div>
-        <div>{{ drink.type }}</div>
-        <div>{{ drink.countAmount }}</div>
-      </li>
-    </ul>
+</template>
+<template id='choose-color-template'>
+  <div class="colorsPage" v-show="isShowPage">
+    <div class="colorbox">
+      <div class="f17 tc p30"><span class="b">选择您所在房间提示牌的颜色</span><br>Choose the color of the sign</div>
+      <ul class="colorslist">
+        <li v-for="color in colors">
+          <label class="colorbtn" @click="chooseColor" v-bind:style="{ borderColor: currColor == color ? color : '#fff' }">
+          <span v-bind:style="{ backgroundColor: color }"></span>
+          <input type="radio" v-model="currColor" :value="color" class="colorRadio"> </label>
+        </li>
+      </ul>
+      <div class="tc okbtn"><a class="button" id="submitcolor" v-bind:class="isCanSubmit" @click="submit($event)">OK</a></div>
+    </div>
   </div>
-  <div class="drinksMenu">
+</template>
+<template id='shipingcar-template'>
+<div class="shipingcar" >
+  <div class="orderbox" v-show="isShowOrderList && total > 0" transition="expand-up">
+    <div class="clear title"><a @click="clear()"> <div class="icon-del"></div>  清空 Empty</a></div>
     <div class="list">
-      <ul id="drinksMenu">
-        <li v-for="drink in drinks">
-          <div>{{ drink.name }} {{ drink.type }} {{ drink.note }}</div>
-          <div class="items">
-            <ul class="drinksItems">
-              <li v-for="item in drink.items">
-                <div>{{item.name_zh}}</div>
-                <div>{{item.name}}</div>
-                <div v-show="item.amount > 0">
-                  <a @click="less(item)" href="#"> - </a>
-                  <input type="text" v-model="item.amount">
-                </div>
-                <a @click="plus(item)" href="#"> + </a>
-              </li>
-            </ul>
+      <ul id="order">
+        <li class="orderitm" v-for="order in orders" v-show="order.amount > 0" transition="expand-up">
+          <div class="f17 b g3">{{ order.name_zh }}</div>
+          <div class="g3">{{ order.name }}</div>
+          <div class="todo">
+            <a class="less" @click="less(order)"> - </a>
+            <input readonly="readonly" type="text" v-model="order.amount">
+            <a class="plus" @click="plus(order)"> + </a>
           </div>
         </li>
       </ul>
     </div>
   </div>
+  <div class="bar rel">
+    <div class="count abs">
+      <a @click="toggleOrderList()" class="countbtn">
+        <div class="icon-cup">
+          <div class="total" v-show="total > 0" transition="expand">
+            {{ total }}
+          </div>
+        </div>
+      </a>
+    </div>
+    <div class="abs okbtn"><a class="button" id="submit" v-bind:class="canSubmit" @click="submit">OK</a></div>
+  </div>
 </div>
+</template>
+
+<template id='drinks-side-template'>
+  <div class="side">
+    <ul id="side">
+      <li v-for="drink in drinks">
+        <a href="#" class="rel">
+          <div class="f17">{{ drink.name }}</div>
+          <div>{{ drink.type }}</div>
+          <div class="num" v-show="amountByType[$index] > 0" transition="expand">{{ amountByType[$index] }}</div>
+        </a>
+      </li>
+    </ul>
+  </div>
+</template>
+
+<template id='drinks-items-template'>
+  <div class="drinksMenu">
+    <ul id="drinksMenu">
+      <li v-for="drink in drinks">
+        <div class="title">{{ drink.name }} {{ drink.type }} {{ drink.note }}</div>
+        <div class="items">
+          <ul class="drinksItems">
+            <li v-for="item in drink.items" class="rel item">
+              <div class="f17 b g3">{{item.name_zh}}</div>
+              <div class="g3">{{item.name}}</div>
+              <div class="todo" v-show="item.amount > 0"  transition="expand-left">
+                <a class="less" @click="less(item)"> - </a>
+                <input readonly="readonly" type="text" v-model="item.amount">
+              </div>
+              <a class="plus" @click="plus(item)"> + </a>
+            </li>
+          </ul>
+        </div>
+      </li>
+    </ul>
+  </div>
+</template>
 </body>
 
 <script src="js/vue.js"></script>
+<script src="js/vue-resource.min.js"></script>
+<script src="js/ajax.min.js"></script>
 <script src="js/api.js"> </script>
 </html>
